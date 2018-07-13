@@ -3,6 +3,17 @@ const serial  = require('serialport');
 
 const app = express();
 
+var links = `<!doctype html><html><head><title>Train Control!</title></head>
+	<body>
+	<a href='./faster'>faster</a><br />
+	<a href='./slower'>slower</a><br />
+	<a href='./reverse'>reverse</a><br />
+	<a href='./stop'>stop</a><br />
+	`;
+var close = `</body>`;
+var message = (res, message) => {
+    res.send(links + message + close);
+}
 var port = new serial('/dev/ttyACM0', {
     baudRate: 9600
 });
@@ -13,25 +24,25 @@ port.on('error', (err) => {
 
 port.on('readable', () => console.log('Serial Data: ' + port.read()));
 
-app.get('/', (req, res) => res.send('Hello World'));
+app.get('/', (req, res) => res.send(links));
 app.get('/faster', (req, res)=> {
     port.write('f');
-    res.send('Speeding Up!');
+    message(res, 'Speeding Up!');
 });
 
 app.get('/slower', (req, res) => {
     port.write('s');
-    res.send('Slowing Down!');
+    message(res, 'Slowing Down!');
 });
 
 app.get('/reverse', (req, res) => {
     port.write('r');
-    res.send('reversing!');
+    message(res, 'reversing!');
 });
 
 app.get('/stop', (req, res) => {
     port.write('q');
-    res.send('emergency stop!');
+    message(res, 'emergency stop!');
 });
 
 app.listen(3000, () => console.log('Example app listening on port 3000!'));
